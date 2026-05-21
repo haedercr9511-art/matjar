@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متجري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f; --surface: #13131a; --card: #1a1a25;
+      --accent: #e8c547; --text: #f0ede6; --muted: #8a8799; --border: #2a2a3a;
+    }
+    body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--text); }
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .logo { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+    .hero { padding: 3rem 1.5rem; text-align: center; background: linear-gradient(135deg, #13131a, #1a1025); }
+    .hero h1 { font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { color: var(--muted); }
+    .categories { display: flex; gap: 0.5rem; padding: 1rem 1.5rem; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+    .categories::-webkit-scrollbar { display: none; }
+    .cat-btn { padding: 6px 16px; border-radius: 30px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'Tajawal', sans-serif; font-size: 0.85rem; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s; }
+    .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .cat-btn.active { background: var(--accent); border-color: var(--accent); color: #0a0a0f; font-weight: 700; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
+    .section-title { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; margin-bottom: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: transform 0.3s, border-color 0.3s; }
+    .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+    .card-img { background: linear-gradient(135deg, #1f1f2e, #2a2a40); height: 160px; display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; }
+    .card-badge { position: absolute; top: 10px; left: 10px; background: rgba(232,197,71,0.15); color: var(--accent); font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(232,197,71,0.3); }
+    .card-body { padding: 1rem; }
+    .card-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .card-desc { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.8rem; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .price { font-size: 1.2rem; font-weight: 900; color: var(--accent); }
+    .price span { font-size: 0.7rem; color: var(--muted); font-weight: 400; }
+    .btn { background: var(--accent); color: #0a0a0f; border: none; padding: 7px 14px; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+    footer { margin-top: 3rem; border-top: 1px solid var(--border); padding: 1.5rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: #0a0a0f; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; transition: transform 0.3s; z-index: 999; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">متجري</div>
+  <span style="color:var(--muted);font-size:0.8rem">منتجات متنوعة</span>
+</header>
+<section class="hero">
+  <h1>تسوّق بذوق، <em>وفّر بذكاء</em></h1>
+  <p>اكتشف أفضل المنتجات بأسعار تنافسية</p>
+</section>
+<nav class="categories">
+  {% for cat in categories %}
+  <a href="/?category={{ cat }}" class="cat-btn {% if active == cat %}active{% endif %}">{{ cat }}</a>
+  {% endfor %}
+</nav>
+<main class="container">
+  <p class="section-title">المنتجات — {{ products|length }} منتج</p>
+  {% if products %}
+  <div class="grid">
+    {% for p in products %}
+    <div class="card">
+      <div class="card-img">
+        {{ p.emoji }}
+        <span class="card-badge">{{ p.category }}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">{{ p.name }}</div>
+        <div class="card-desc">{{ p.description }}</div>
+        <div class="card-footer">
+          <div class="price">{{ p.price }} <span>ر.س</span></div>
+          <button class="btn" onclick="addToCart('{{ p.name }}')">أضف للسلة</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:3rem;color:var(--muted)">لا توجد منتجات</div>
+  {% endif %}
+</main>
+<footer>متجري © 2026 — مبني بـ Python Flask 🐍</footer>
+<div class="toast" id="toast"></div>
+<script>
+  function addToCart(name) {
+    const t = document.getElementById('toast');
+    t.textContent = `✓ تمت إضافة "${name}" للسلة`;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
